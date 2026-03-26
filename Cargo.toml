@@ -1,0 +1,10 @@
+[package]
+name = "flux"
+version = "0.1.0"
+edition = "2024"
+
+[dependencies]
+hex = "0.4"
+rand = "0.8"
+clap = { version = "4.4", features = ["derive"] }
+chacha20poly1305 = "0.10"
