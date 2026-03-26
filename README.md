@@ -13,7 +13,7 @@ FLUX operates as a complete, secure transport layer. For every packet, it handle
 3. **Encryption (AEAD):** Authenticates and encrypts the entire payload and metadata headers in-place using XChaCha20-Poly1305.
 4. **CBR Transmission:** Blasts packets at a hardcoded, unyielding frequency (e.g., 20Hz). Idle time is filled entirely with dummy noise packets.
 
-## Architecture
+## Deployment Model
 * **Transmitter (Edge):** Runs on the drone/robot. Ingests local plaintext UDP telemetry, processes it through the FLUX pipeline, and blasts it over the RF link.
 * **Gateway (Base):** Runs at your base station. Ingests the raw FLUX stream, verifies the MAC (dropping malformed probes), recovers dropped packets via FEC, and passes clean plaintext to your C2 server.
 ---
