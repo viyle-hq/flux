@@ -4,25 +4,18 @@
 
 In Electronic Warfare (EW), adversaries don't need to decrypt your packets to know what you are doing. They use Traffic Analysis. If a drone sends a 50-byte packet every second, it's loitering. If it suddenly blasts a 2 MB stream, it just found a target. They use this metadata to direction-find (DF) your C2 or gateway and bomb it. 
 
-FLUX solves this by forcing all your telemetry into a strict Constant Bit Rate (CBR) stream that looks identical to background RF noise.
+FLUX solves this by hiding your traffic inside a constant stream of identically sized packets. It pads real data with cryptographic noise, and sends pure noise when idle. To an adversary, your transmission footprint never changes.
 
 ### Not Just Obfuscation
-FLUX operates as a complete, secure transport layer. For every packet that enters the pipeline, FLUX:
-1. **Encodes** the data using a 2+1 Systematic XOR Forward Error Correction (FEC) scheme.
-2. **Pads** the frame to a strict, fixed byte size using cryptographic white noise.
-3. **Encrypts (AEAD)** and authenticates the entire payload and metadata headers in-place using XChaCha20-Poly1305.
-4. **Transmits** at a hardcoded, unyielding frequency (e.g., 20Hz). If the drone has no telemetry to send, FLUX transmits dummy packets made entirely of cryptographic noise to maintain the illusion.
+FLUX operates as a complete, secure transport layer. For every packet, it handles:
+1. **FEC Encoding:** Uses a 2+1 Systematic XOR Forward Error Correction scheme. Up to 30% of your packets can be dropped by EW jammers, and the Gateway will instantly mathematically reconstruct the missing data without retransmissions.
+2. **Padding:** Forces the frame to a strict, fixed byte size using cryptographic white noise.
+3. **Encryption (AEAD):** Authenticates and encrypts the entire payload and metadata headers in-place using XChaCha20-Poly1305.
+4. **CBR Transmission:** Blasts packets at a hardcoded, unyielding frequency (e.g., 20Hz). Idle time is filled entirely with dummy noise packets.
 
-
-### Forward Error Correction (FEC)
-Contested RF environments are inherently lossy. Because of the built-in zero-latency FEC layer, **up to 30% of your packets can be dropped by EW jammers, and the Gateway Node will still instantly mathematically reconstruct the missing data** on the receiving side without requiring a retransmission.
-
----
-
-### Architecture
-* **Transmitter (Edge Node):** Runs on the drone/robot. Ingests local plaintext UDP telemetry, processes it through the FLUX pipeline, and blasts it over the RF link.
-* **Gateway Node:** Runs at your base station. Ingests the raw FLUX stream from the RF link, drops malformed packets/probes, verifies the XChaCha20 MAC, recovers dropped packets via FEC, and passes the clean, plaintext telemetry to your actual C2 server or receiver.
-
+## Architecture
+* **Transmitter (Edge):** Runs on the drone/robot. Ingests local plaintext UDP telemetry, processes it through the FLUX pipeline, and blasts it over the RF link.
+* **Gateway (Base):** Runs at your base station. Ingests the raw FLUX stream, verifies the MAC (dropping malformed probes), recovers dropped packets via FEC, and passes clean plaintext to your C2 server.
 ---
 
 ### Quick Start
