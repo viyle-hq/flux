@@ -1,19 +1,24 @@
-# FLUX: Anti-EW Traffic Obfuscator
+# FLUX: Anti-EW UDP Tunnel
 
-**FLUX** is a high-performance UDP proxy designed to defeat Electronic Warfare (EW) traffic analysis.
+**FLUX** is a zero-pattern UDP proxy designed to defeat Electronic Warfare (EW) traffic analysis.
 
-In Electronic Warfare (EW), adversaries don't need to decrypt your packets to know what you are doing. They use Traffic Analysis. If a drone sends a 50-byte packet every second, it's loitering. If it suddenly blasts a 2 MB stream, it just found a target. They use this metadata to direction-find (DF) your C2 or gateway and bomb it. 
+## The Problem
+In Electronic Warfare (EW), adversaries don't need to decrypt your packets to know what you are doing. They do Traffic Analysis, often using AI and Machine Learning. If a drone sends a 50-byte packet every second, it's loitering. If it suddenly blasts a 2 MB stream, it just found a target. They use this data to direction-find (DF) your C2 or gateway and bomb it. 
 
-FLUX solves this by hiding your traffic inside a constant stream of identically sized packets. It pads real data with cryptographic noise, and sends pure noise when idle. To an adversary, your transmission footprint never changes.
+FLUX solves this by flattening your transmission footprint into a continuous, zero-variance stream of cryptographic noise. To  
+an adversary, your behavior never changes.
 
-### Not Just Obfuscation
-FLUX operates as a complete, secure transport layer. For every packet, it handles:
+### Defense-in-Depth Transport
+
+FLUX provides a self-contained, end-to-end secure transport layer.
+
+For every packet, it handles:
 1. **FEC Encoding:** Uses a 2+1 Systematic XOR Forward Error Correction scheme. Up to 30% of your packets can be dropped by EW jammers, and the Gateway will instantly mathematically reconstruct the missing data without retransmissions.
 2. **Padding:** Forces the frame to a strict, fixed byte size using cryptographic white noise.
 3. **Encryption (AEAD):** Authenticates and encrypts the entire payload and metadata headers in-place using XChaCha20-Poly1305.
 4. **CBR Transmission:** Blasts packets at a hardcoded, unyielding frequency (e.g., 20Hz). Idle time is filled entirely with dummy noise packets.
 
-## Deployment Model
+### Deployment Model
 * **Transmitter (Edge):** Runs on the drone/robot. Ingests local plaintext UDP telemetry, processes it through the FLUX pipeline, and blasts it over the RF link.
 * **Gateway (Base):** Runs at your base station. Ingests the raw FLUX stream, verifies the MAC (dropping malformed probes), recovers dropped packets via FEC, and passes clean plaintext to your C2 server.
 ---
@@ -58,7 +63,7 @@ echo "UAV_04_STATE: BINGO_FUEL" | nc -u -q 0 127.0.0.1 7777
 *(Note: The `--packet-size` must perfectly match between the Transmitter and Gateway, or the packets will be mathematically rejected by the receiver's AEAD cipher).*
 
 
-## Protocol Architecture
+### Protocol Architecture
 
 Every FLUX frame is identically sized and structured as follows:
 
