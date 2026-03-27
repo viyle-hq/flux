@@ -5,8 +5,7 @@
 ## The Problem
 In Electronic Warfare (EW), adversaries don't need to decrypt your packets to know what you are doing. They do Traffic Analysis, often using AI and Machine Learning. If a drone sends a 50-byte packet every second, it's loitering. If it suddenly blasts a 2 MB stream, it just found a target. They use this data to direction-find (DF) your C2 or gateway and bomb it. 
 
-FLUX solves this by flattening your transmission footprint into a continuous, zero-variance stream of cryptographic noise. To  
-an adversary, your behavior never changes.
+FLUX solves this by flattening your transmission footprint into a continuous, zero-variance stream of cryptographic noise. To an adversary, your behavior never changes.
 
 ### Defense-in-Depth Transport
 
